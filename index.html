@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PensionRadar Airy</title>
+  <meta name="description" content="Airy, multi screen, numbers only pension planner. Advanced is abstracted.">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+<header class="hdr" role="banner">
+  <div class="brand">
+    <div class="logo" aria-hidden="true"></div>
+    <div class="stack">
+      <h1>PensionRadar</h1>
+      <p class="tagline">Simple inputs. Clear results.</p>
+    </div>
+  </div>
+  <nav class="hdr-actions">
+    <button id="btn-help" class="ghost">Help</button>
+    <button id="btn-assumptions" class="ghost">Assumptions</button>
+    <button id="btn-export" class="primary">Export</button>
+  </nav>
+</header>
+
+<nav class="tabs" role="navigation" aria-label="Primary">
+  <a class="tab" id="tab-home" href="#/home" aria-current="page">Home</a>
+  <a class="tab" id="tab-wizard" href="#/wizard">Wizard</a>
+  <a class="tab" id="tab-results" href="#/results">Results</a>
+  <a class="tab" id="tab-learn" href="#/learn">Learn</a>
+  <a class="tab" id="tab-about" href="#/about">About</a>
+</nav>
+
+<main class="wrap" role="main">
+  <div id="print-header" class="print-only"><div class="ph-row"><div class="ph-brand">PensionRadar</div><div class="ph-meta"><span id="print-date"></span></div></div></div>
+  <!-- Home -->
+  <section id="view-home" class="view" aria-labelledby="home-title">
+    <div class="hero-pad">
+      <h2 id="home-title" class="hero-title">Know your retirement income in two minutes</h2>
+      <p class="hero-sub">Calm screens. Few inputs. Math stays hidden until needed.</p>
+    </div>
+    <div class="tiles">
+      <button class="tile" id="go-quick">
+        <div class="tile-body">
+          <h3>Quick wizard</h3>
+          <p>Two short steps with only the fields that matter.</p>
+        </div>
+        <div class="tile-cta">Start</div>
+      </button>
+      <button class="tile" id="go-sample">
+        <div class="tile-body">
+          <h3>Sample profile</h3>
+          <p>Load sensible defaults and see a result instantly.</p>
+        </div>
+        <div class="tile-cta">Load</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- Wizard -->
+  <section id="view-wizard" class="view" hidden>
+    <div class="step-card">
+      <div class="step-hd">
+        <div class="dot">1</div>
+        <div>
+          <h3>Profile</h3>
+          <p class="muted">Age, retirement age, salary, growth.</p>
+        </div>
+      </div>
+      <div class="fields">
+        <div class="field">
+          <label for="w_age">Age</label>
+          <input id="w_age" type="number" min="18" max="70" value="32">
+          <div class="help">Age today</div>
+        </div>
+        <div class="field">
+          <label for="w_ret">Retire at</label>
+          <input id="w_ret" type="number" min="50" max="75" value="60">
+          <div class="help">Year you stop working</div>
+        </div>
+        <div class="field wide">
+          <label for="w_sal">Monthly salary basic plus DA</label>
+          <div class="input-prefix"><span class="prefix">₹</span><input id="w_sal" type="number" min="0" step="500" value="80000"></div>
+          <div class="help">Used to estimate your final salary at retirement</div>
+        </div>
+        <div class="field">
+          <label for="w_growth">Salary growth percent per year</label>
+          <input id="w_growth" type="number" min="0" max="20" step="0.1" value="6">
+          <div class="help">If unsure, keep 6</div>
+        </div>
+      </div>
+      <div class="step-cta">
+        <button class="ghost" data-nav="home">Back</button>
+        <button class="primary" data-next="2">Next</button>
+      </div>
+    </div>
+
+    <div class="step-card" data-step="2" hidden>
+      <div class="step-hd">
+        <div class="dot">2</div>
+        <div>
+          <h3>Savings</h3>
+          <p class="muted">EPF, EPS years, NPS monthly.</p>
+        </div>
+      </div>
+      <div class="fields">
+        <div class="field wide">
+          <label for="w_epf">Current EPF balance</label>
+          <div class="input-prefix"><span class="prefix">₹</span><input id="w_epf" type="number" min="0" step="1000" value="450000"></div>
+          <div class="help">Provident fund balance today</div>
+        </div>
+        <div class="field">
+          <label for="w_epsyrs">EPS service years</label>
+          <input id="w_epsyrs" type="number" min="0" max="40" value="12">
+          <div class="help">Years eligible under EPS</div>
+        </div>
+        <div class="field">
+          <label for="w_nps">NPS per month</label>
+          <div class="input-prefix"><span class="prefix">₹</span><input id="w_nps" type="number" min="0" step="500" value="5000"></div>
+          <div class="help">Your monthly NPS contribution</div>
+        </div>
+        <div class="field">
+          <label for="w_extra">Add more per month to NPS</label>
+          <div class="input-prefix"><span class="prefix">₹</span><input id="w_extra" type="number" min="0" step="500" value="0"></div>
+          <div class="help">Optional top up to see impact</div>
+        </div>
+      </div>
+      <details class="adv">
+        <summary>Advanced</summary>
+        <div class="adv-grid">
+          <div class="field">
+            <label for="w_epf_wage">EPF wage per month</label>
+            <div class="input-prefix"><span class="prefix">₹</span><input id="w_epf_wage" type="number" min="0" step="500" value="60000"></div>
+            <div class="help">Wage used for EPF and EPS</div>
+          </div>
+          <div class="field">
+            <label for="w_emp">Employee EPF percent</label>
+            <input id="w_emp" type="number" step="0.1" value="12">
+            <div class="help">Your EPF contribution rate</div>
+          </div>
+          <div class="field">
+            <label for="w_er">Employer EPF to EPF percent</label>
+            <input id="w_er" type="number" step="0.01" value="3.67">
+            <div class="help">Part of employer share to EPF</div>
+          </div>
+          <div class="field">
+            <label for="w_nps_bal">Current NPS balance</label>
+            <div class="input-prefix"><span class="prefix">₹</span><input id="w_nps_bal" type="number" min="0" step="1000" value="250000"></div>
+            <div class="help">NPS corpus today</div>
+          </div>
+          <div class="field">
+            <label for="w_eps_cap">Apply EPS wage ceiling of ₹15000</label>
+            <select id="w_eps_cap"><option value="yes" selected>Yes</option><option value="no">No</option></select>
+            <div class="help">If Yes, pensionable salary is capped at ₹15000</div>
+          </div>
+          <div class="divider"></div>
+          <div class="field">
+            <label for="w_allocE">NPS equity E percent</label>
+            <input id="w_allocE" type="number" min="0" max="100" value="60">
+            <div class="help">Equity allocation</div>
+          </div>
+          <div class="field">
+            <label for="w_allocC">NPS corporate C percent</label>
+            <input id="w_allocC" type="number" min="0" max="100" value="30">
+            <div class="help">Corporate bond allocation</div>
+          </div>
+          <div class="field">
+            <label for="w_allocG">NPS government G percent</label>
+            <input id="w_allocG" type="number" min="0" max="100" value="10">
+            <div class="help">Government bond allocation</div>
+          </div>
+          <div class="sum-row"><span>Sum</span><span id="w_alloc_sum">100</span>%<small id="w_alloc_err" class="error"></small></div>
+        </div>
+      </details>
+      <div class="step-cta">
+        <button class="ghost" data-prev="1">Back</button>
+        <button class="primary" data-finish>See results</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="view-results" class="view" hidden>
+    <div class="hero-card">
+      <div class="score-cluster">
+        <svg class="gauge" viewBox="0 0 100 60" role="img" aria-label="PensionScore">
+          <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#1f2754" stroke-width="10" stroke-linecap="round"></path>
+          <path id="gauge-bar" d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#7c83ff" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 157"></path>
+          <circle id="gauge-dot" cx="10" cy="50" r="3" fill="#7c83ff"></circle>
+        </svg>
+        <div class="score-txt">
+          <div class="big" id="score">--</div>
+          <div class="sub">PensionScore</div>
+        </div>
+      </div>
+      <div class="headline">
+        <div id="delta_msg" class="muted tiny" aria-live="polite"></div>
+        <div class="line">You are on track for <strong id="total_nom">--</strong> per month at retirement.</div>
+        <div class="muted tiny">In today’s money <span id="total_real">--</span></div>
+      </div>
+      <div class="hero-actions">
+        <button id="btn-apply-sugg" class="ghost">Apply top suggestion</button>
+        <button id="btn-export-2" class="primary">Export</button>
+      </div>
+    </div>
+
+    <div class="strip">
+      <div class="card">
+        <h3>Income sources</h3>
+        <ul id="income_lines"></ul>
+        <details class="tiny-help"><summary>Details</summary><div id="income_details"></div></details>
+      </div>
+      <div class="card">
+        <h3>Target and gap</h3>
+        <div class="row"><span class="label">Target - final salary times <span id="trr_lbl">70 percent</span></span><span class="val" id="target_nom">--</span></div>
+        <div class="row"><span class="label pos">Gap closed</span><span class="val" id="gap_closed">--</span></div>
+        <div class="row"><span class="label neg">Remaining gap</span><span class="val" id="gap_nom">--</span></div>
+      </div>
+      <div class="card">
+        <h3>What to do next</h3>
+        <div id="sugg_list">
+          <div class="sugg">
+            <div><strong id="suggest_addnps_amt">₹--</strong> per month more to NPS leads to Score <strong id="suggest_addnps_score">--</strong></div>
+            <button class="apply" data-action="addnps">Apply</button>
+          </div>
+          <div class="sugg">
+            <div>Retire at <strong id="suggest_age">62</strong> leads to Score <strong id="suggest_age_score">--</strong></div>
+            <button class="apply" data-action="age">Apply</button>
+          </div>
+          <div class="sugg">
+            <div>NPS mix - E 70 C 20 G 10 leads to Score <strong id="suggest_alloc_score">--</strong></div>
+            <button class="apply" data-action="alloc">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="prototype_scope_note" class="muted tiny" style="margin-top:12px">Prototype scope: manual inputs and rules based suggestions. No live EPFO or NPS connectivity.</div>
+  </section>
+
+  <!-- Learn -->
+  <section id="view-learn" class="view" hidden>
+    <div class="card big-pad">
+      <h3>Quick explanations</h3>
+      <p class="muted">Short notes to understand what the app uses</p>
+    </div>
+    <div class="strip">
+      <div class="card">
+        <h3>EPF</h3>
+        <ul class="bul">
+          <li>Interest is credited annually to your EPF account</li>
+          <li>We start with your current balance and add monthly contributions from you and your employer</li>
+          <li>You can change the EPF rate in Assumptions</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>EPS</h3>
+        <ul class="bul">
+          <li>Pension is based on pensionable salary and years of service</li>
+          <li>Formula is pensionable salary times service divided by 70</li>
+          <li>By default, the wage ceiling of ₹15000 is applied</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>NPS</h3>
+        <ul class="bul">
+          <li>At retirement, at least 40 percent typically buys an annuity when corpus is above ₹5 lakh</li>
+          <li>If the corpus is at or below ₹5 lakh, full lump sum can be chosen</li>
+          <li>The rest is used as a lump sum which we draw down over your chosen years</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Assumptions</h3>
+        <ul class="bul">
+          <li>Inflation target is set to 4 percent by default</li>
+          <li>Post retirement return and annuity rate can be edited in the Assumptions modal</li>
+          <li>Target replacement rate is the percent of final salary you aim to match</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- About with LaTeX formulas -->
+  <section id="view-about" class="view" hidden>
+    <div class="card big-pad">
+      <h3>About PensionRadar</h3>
+      <p class="muted">This page documents the math, assumptions, and public sources used by the prototype.</p>
+    </div>
+    <div class="card">
+      <h3>What the model does</h3>
+      <ul class="bul">
+        <li>Projects EPF corpus from current balance, wage, and contribution rates, compounding at the EPF rate set by EPFO</li>
+        <li>Computes EPS monthly pension using the statutory formula and optional wage ceiling</li>
+        <li>Projects NPS corpus using your current balance and monthly contribution with an editable E, C, G mix</li>
+        <li>At retirement, applies NPS exit rules to split between annuity and lump sum, then draws the lump sum over your chosen years</li>
+        <li>Converts the total monthly income into today value using your inflation setting</li>
+        <li>Builds a PensionScore versus a target percent of final salary</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Key formulas</h3>
+      <div class="formula-item">
+        <div class="label">Final salary at retirement</div>
+        <div class="eq">\[ S_{\text{final}} = S_0 \,(1 + g)^{Y} \]
+        <button class="mini ghost vars-btn" data-vars="S_final,S_0,g,Y">Variables</button>
+</div>
+      </div>
+      <div class="formula-item">
+        <div class="label">EPF projection month by month</div>
+        <div class="eq">\[ B_{t+1} = \bigl(B_t + c^{\text{emp}}_t + c^{\text{er}}_t\bigr)\,\bigl(1 + \tfrac{r_{\text{epf}}}{12}\bigr) \]
+        <button class="mini ghost vars-btn" data-vars="B_t,c_emp,c_er,r_epf">Variables</button>
+</div>
+      </div>
+      <div class="formula-item">
+        <div class="label">EPS monthly pension</div>
+        <div class="eq">\[ P = \frac{S_p \times Y_s}{70}, \quad S_p = \min\{15000,\, W\}\ \text{if ceiling is on} \]
+        <button class="mini ghost vars-btn" data-vars="P,S_p,Y_s,W">Variables</button>
+</div>
+      </div>
+      <div class="formula-item">
+        <div class="label">NPS blended monthly return and growth</div>
+        <div class="eq">\[ r = w_E r_E + w_C r_C + w_G r_G, \quad B_{t+1} = \bigl(B_t + C\bigr)\,(1 + \tfrac{r}{12}) \]
+        <button class="mini ghost vars-btn" data-vars="r,w_E,r_E,w_C,r_C,w_G,r_G,B_t,C">Variables</button>
+</div>
+      </div>
+      <div class="formula-item">
+        <div class="label">NPS exit split at retirement</div>
+        <div class="eq">\[
+          \text{Annuity corpus} =
+          \begin{cases}
+            0, & B_T \le 5{,}00{,}000 \\
+            0.40\,B_T, & B_T > 5{,}00{,}000
+          \end{cases}
+        \]</div>
+      </div>
+      <div class="formula-item">
+        <div class="label">Annuity monthly income</div>
+        <div class="eq">\[ I_{\text{ann}} = A \cdot \frac{r_a}{12} \]
+        <button class="mini ghost vars-btn" data-vars="I_ann,A,r_a">Variables</button>
+</div>
+      </div>
+      <div class="formula-item">
+        <div class="label">Systematic withdrawal from lump sum</div>
+        <div class="eq">\[ \text{PMT} = \frac{PV \cdot r_m}{1 - (1 + r_m)^{-n}} \]
+        <button class="mini ghost vars-btn" data-vars="PMT,PV,r_m,n">Variables</button>
+</div>
+      </div>
+      <div class="formula-item">
+        <div class="label">Convert to today value</div>
+        <div class="eq">\[ I_{\text{real}} = \frac{I_{\text{nom}}}{(1 + \pi)^{Y}} \]
+        <button class="mini ghost vars-btn" data-vars="I_real,I_nom,pi,Y">Variables</button>
+</div>
+      </div>
+      <div class="formula-item">
+        <div class="label">PensionScore</div>
+        <div class="eq">\[ \text{Score} = \min\!\left(100,\ \left\lfloor 100 \cdot \frac{I_{\text{nom}}}{\text{Target}} \right\rfloor \right), \quad \text{Target} = \tau \cdot S_{\text{final}} \]
+        <button class="mini ghost vars-btn" data-vars="Score,I_nom,Target,tau,S_final">Variables</button>
+</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Defaults and where they come from</h3>
+      <ul class="bul">
+        <li><strong>EPF rate</strong>: 8.25 percent for FY 2023-24 and 2024-25 per EPFO notifications. Links:
+          <a href="https://www.epfindia.gov.in/site_docs/PDFs/Circulars/Y2024-2025/Circular_Investment_23072024_Hi.pdf" target="_blank" rel="noopener">EPFO 2023-24 interest communication</a> and
+          <a href="https://www.epfindia.gov.in/site_docs/PDFs/Circulars/Y2025-2026/DeclarationOfROI_2024_25.pdf" target="_blank" rel="noopener">EPFO 2024-25 rate declaration</a>
+        </li>
+        <li><strong>EPS formula</strong>: pension = pensionable salary times service divided by 70 per EPFO EPS 1995 document.
+          <a href="https://www.epfindia.gov.in/site_docs/PDFs/Downloads_PDFs/EPS95_update102008.pdf" target="_blank" rel="noopener">See clause on monthly pension</a>
+        </li>
+        <li><strong>NPS exit rule</strong>: full withdrawal allowed if corpus ≤ ₹5 lakh. If corpus > ₹5 lakh, at least 40 percent is used to buy annuity.
+          <a href="https://npscra.nsdl.co.in/nps-exit/" target="_blank" rel="noopener">NSDL-CRA Exit page</a>
+        </li>
+        <li><strong>NPS assets</strong>: E equity, C corporate bonds, G government bonds, A alternative assets.
+          <a href="https://npstrust.org.in/about-nps" target="_blank" rel="noopener">NPS Trust</a>
+        </li>
+        <li><strong>Inflation target</strong>: RBI targets 4 percent with a tolerance band of 2 to 6 percent.
+          <a href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=2146815" target="_blank" rel="noopener">PIB statement on RBI framework</a>
+        </li>
+      </ul>
+      <p class="muted tiny">Notes: EPF interest is credited annually to member accounts. This model spreads compounding monthly for a smoother month by month projection, which is acceptable for planning. Annuity rate and NPS asset returns are assumptions for demonstration and are editable in Assumptions.</p>
+    </div>
+    <div class="card">
+      <h3>Why this is reliable for a demo</h3>
+      <ul class="bul">
+        <li>Uses current public rules for EPF, EPS, and NPS referenced above</li>
+        <li>Math uses standard time value formulas for withdrawals and annuities</li>
+        <li>Inputs are transparent and editable, with Advanced and Assumptions available when needed</li>
+        <li>All calculations run locally in your browser with no data sent to a server</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<!-- Assumptions Modal -->
+<div class="modal hidden" id="ass-modal" role="dialog" aria-modal="true" aria-labelledby="ass-title">
+  <div class="modal-ct">
+    <div class="modal-hd">
+      <h3 id="ass-title">Assumptions</h3>
+      <button id="ass-close" class="ghost small">Close</button>
+    </div>
+    <div class="modal-bd grid">
+      <div class="field"><label for="ass_epf_rate">EPF annual rate percent</label><input type="number" id="ass_epf_rate" value="8.25" step="0.01"></div>
+      <div class="field"><label for="ass_infl">Inflation percent</label><input type="number" id="ass_infl" value="4" step="0.1"></div>
+      <div class="field"><label for="ass_ann">Annuity rate percent</label><input type="number" id="ass_ann" value="6.5" step="0.1"></div>
+      <div class="field"><label for="ass_prr">Post retirement return percent</label><input type="number" id="ass_prr" value="6" step="0.1"></div>
+      <div class="field"><label for="ass_horizon">Drawdown years</label><input type="number" id="ass_horizon" value="20" step="1" min="5" max="40"></div>
+      <div class="field"><label for="ass_trr">Target replacement percent</label><input type="number" id="ass_trr" value="70" step="1"></div>
+      <div class="note muted tiny">Defaults are sensible. You can tweak them here. No need to touch for a normal run.</div>
+      <div class="right"><button id="ass-reset" class="ghost">Reset defaults</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal hidden" id="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
+  <div class="modal-ct">
+    <div class="modal-hd">
+      <h3 id="help-title">Help</h3>
+      <button id="help-close" class="ghost small">Close</button>
+    </div>
+    <div class="modal-bd">
+      <p>Use the tabs at the top to move between screens. Wizard guides first time users. Results shows your income and score. Learn gives quick definitions. About lists formulas and links to public sources. Export prints a one page PDF.</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+
+<!-- Variables Modal -->
+<div class="modal hidden" id="vars-modal" role="dialog" aria-modal="true" aria-labelledby="vars-title">
+  <div class="modal-ct">
+    <div class="modal-hd">
+      <h3 id="vars-title">Variables</h3>
+      <button id="vars-close" class="ghost small">Close</button>
+    </div>
+    <div class="modal-bd">
+      <ul id="vars-list" class="bul"></ul>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
