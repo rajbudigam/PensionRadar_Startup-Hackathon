@@ -1,4 +1,3 @@
-// Airy Multi Screen Dark Simplified + Explain + About + LaTeX
 'use strict';
 
 const $ = (s,r=document)=>r.querySelector(s);
@@ -8,7 +7,6 @@ const fmtInt=(n)=> isFinite(n)? new Intl.NumberFormat('en-IN',{maximumFractionDi
 const fmtMoney=(n)=> '₹'+fmtInt(n);
 const clamp=(x,a,b)=>Math.min(Math.max(x,a),b);
 
-// -------- math engine --------
 function yearsToRetire(age, retireAge){ return Math.max(0, retireAge - age); }
 function finalSalaryMonthly(salaryNow, growthPct, years){ const g=Number(growthPct)/100; return salaryNow*Math.pow(1+g,years); }
 function projectEPF(balance0, wage0, growthPct, empRatePct, erRatePct, epfRatePct, years){
@@ -64,7 +62,6 @@ function navTo(route){
 }
 window.addEventListener('hashchange', ()=> navTo(location.hash.replace('#/','')));
 
-// ------- wiring helpers -------
 function bindNumeric(id, path){
   const el = byId(id);
   el.addEventListener('input', ()=>{
@@ -86,7 +83,6 @@ function updateAllocSumWizard(){
   return s===100;
 }
 
-// ------- wizard -------
 function initWizard(){
   // step 1 bind
   bindNumeric('w_age','age'); bindNumeric('w_ret','retire_age');
@@ -103,7 +99,6 @@ function initWizard(){
     S.alloc.G = Number(byId('w_allocG').value||0);
     updateAllocSumWizard(); save(); renderResults();
   }));
-  // step navigation
   $$('[data-next]').forEach(b=> b.addEventListener('click', ()=>{
     byId('view-wizard').querySelector('.step-card').hidden = true;
     byId('view-wizard').querySelector('[data-step="2"]').hidden = false;
@@ -116,7 +111,6 @@ function initWizard(){
   $$('[data-finish]').forEach(b=> b.addEventListener('click', ()=>{ location.hash='#/results'; }));
 }
 
-// ------- compute + suggestions -------
 function compute(d){
   const yrs=yearsToRetire(d.age,d.retire_age);
   const S_final=finalSalaryMonthly(d.salary_now,d.salary_growth,yrs);
@@ -140,7 +134,6 @@ function bestSuggestions(){
   const base=compute(S);
   const suggestions=[];
 
-  // Suggestion 1: Extra NPS to reach at least 80 percent of target
   const desired = 0.80*base.target_nom;
   let extraNeeded=0;
   if (base.total_monthly_nom < desired){
@@ -157,17 +150,14 @@ function bestSuggestions(){
   const s1 = structuredClone(S); s1.extra_nps = Math.max(S.extra_nps, extraNeeded);
   suggestions.push({type:'addnps', label:`₹${fmtInt(extraNeeded)} per month more to NPS`, score: compute(s1).score, payload:{extra_nps:s1.extra_nps}});
 
-  // Suggestion 2: Retire age to at least 62
   const s2 = structuredClone(S); s2.retire_age = Math.max(S.retire_age,62);
   suggestions.push({type:'age', label:`Retire at ${s2.retire_age}`, score: compute(s2).score, payload:{retire_age:s2.retire_age}});
 
-  // Suggestion 3: Allocation preset that yields best score among a few
   const mixes=[{E:70,C:20,G:10,label:'E 70 C 20 G 10'},{E:60,C:30,G:10,label:'E 60 C 30 G 10'},{E:40,C:40,G:20,label:'E 40 C 40 G 20'}];
   let best={mix:null,score:-1,label:''};
   for (const m of mixes){ const s=structuredClone(S); s.alloc=m; const sc=compute(s).score; if (sc>best.score){ best={mix:m,score:sc,label:m.label}; } }
   suggestions.push({type:'alloc', label:`NPS mix ${best.label}`, score:best.score, payload:{alloc:best.mix}});
 
-  // Rank by resulting score, descending
   suggestions.sort((a,b)=> b.score - a.score);
   return {base, suggestions};
 }
@@ -206,7 +196,6 @@ function renderResults(){
     <div class="tiny">Lump sum for drawdown <strong>${fmtMoney(base.nps_lump + base.EPF_final)}</strong></div>
   `;
 
-  // Write suggestions to UI
   const list = byId('sugg_list');
   const sAdd = suggestions.find(s=>s.type==='addnps');
   const sAge = suggestions.find(s=>s.type==='age');
@@ -215,7 +204,6 @@ function renderResults(){
   if (sAge){ byId('suggest_age').textContent = String(sAge.payload.retire_age); byId('suggest_age_score').textContent = String(sAge.score); }
   if (sAlloc){ byId('suggest_alloc_score').textContent = String(sAlloc.score); }
 
-  // Wire Apply buttons each time
   list.querySelectorAll('.apply').forEach(btn=>{
     btn.onclick = ()=>{
       const type = btn.dataset.action;
@@ -227,7 +215,6 @@ function renderResults(){
     };
   });
 
-  // Top suggestion one-click
   byId('btn-apply-sugg').onclick = ()=>{
     const top = suggestions[0];
     if (!top) return;
@@ -274,7 +261,6 @@ function initHelp(){
   modal.addEventListener('click', (e)=>{ if (e.target===modal) modal.classList.add('hidden'); });
 }
 
-// ------- nav and startup -------
 function initHome(){
   byId('go-quick').onclick=()=>{ location.hash='#/wizard'; };
   byId('go-sample').onclick=()=>{ S = {
@@ -299,7 +285,6 @@ function setPrintDate(){
 }
 
 
-// ---- Variables popup with LaTeX ----
 const VAR_DEFS = {
   S_final: "\\(\\mathbf{S_{\\text{final}}}\\) : Final monthly salary at retirement",
   S_0: "\\(\\mathbf{S_0}\\) : Current monthly salary",
